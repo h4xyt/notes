@@ -10,6 +10,9 @@ const navItems = {
   '/categories': {
     name: 'categorías',
   },
+  '/search': {
+    name: 'buscar',
+  },
 };
 
 export function Navbar() {

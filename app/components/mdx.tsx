@@ -17,11 +17,11 @@ function Table({ data }) {
   ));
 
   return (
-    <table>
-      <thead>
-        <tr>{headers}</tr>
+    <table className="mdx-table">
+      <thead className="mdx-thead">
+        <tr className="mdx-tr">{headers}</tr>
       </thead>
-      <tbody>{rows}</tbody>
+      <tbody className="mdx-tbody">{rows}</tbody>
     </table>
   );
 }
@@ -96,7 +96,11 @@ let components = {
   Image: RoundedImage,
   a: CustomLink,
   code: Code,
-  Table,
+  table: (props) => (
+    <div className="table-wrapper">
+      <table {...props} />
+    </div>
+  ),
 };
 
 export function CustomMDX(props) {

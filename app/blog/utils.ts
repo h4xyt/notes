@@ -1,13 +1,13 @@
 import fs from 'fs';
 import path from 'path';
 
-type Metadata = {
-  title: string
-  publishedAt: string
-  summary: string
-  image?: string
-  group?: string
-  groupOrder?: number
+export type Metadata = {
+  title: string;
+  publishedAt: string;
+  summary: string;
+  image?: string;
+  group?: string;
+  groupOrder?: number;
 };
 
 function parseFrontmatter(fileContent: string) {
@@ -19,10 +19,10 @@ function parseFrontmatter(fileContent: string) {
   let metadata: Partial<Metadata> = {};
 
   frontMatterLines.forEach((line) => {
-    let [key, ...valueArr] = line.split(': ')
-    let value = valueArr.join(': ').trim()
-    value = value.replace(/^['"](.*)['"]$/, '$1') // Remove quotes
-    metadata[key.trim() || '' as keyof Metadata] = value
+    let [key, ...valueArr] = line.split(': ');
+    let value = valueArr.join(': ').trim();
+    value = value.replace(/^['"](.*)['"]$/, '$1'); // Remove quotes
+    metadata[key.trim() || '' as keyof Metadata] = value;
   });
 
   return { metadata: metadata as Metadata, content };
@@ -34,7 +34,7 @@ function getMDXFiles(dir) {
 
 function readMDXFile(filePath) {
   let rawContent = fs.readFileSync(filePath, 'utf-8');
-  return typeof rawContent === 'string' ? parseFrontmatter(rawContent): rawContent;
+  return typeof rawContent === 'string' ? parseFrontmatter(rawContent) : rawContent;
 }
 
 function getMDXData(dir) {
@@ -81,11 +81,11 @@ export function formatDate(date: string, includeRelative = false) {
   let formattedDate = '';
 
   if (yearsAgo > 0) {
-    formattedDate = `hace ${yearsAgo} año${yearsAgo !== 1 ? 's': ''}`;
+    formattedDate = `hace ${yearsAgo} año${yearsAgo !== 1 ? 's' : ''}`;
   } else if (monthsAgo > 0) {
-    formattedDate = `hace ${monthsAgo} mes${monthsAgo !== 1 ? 'es': ''}`;
+    formattedDate = `hace ${monthsAgo} mes${monthsAgo !== 1 ? 'es' : ''}`;
   } else if (daysAgo > 0) {
-    formattedDate = `hace ${daysAgo} día${daysAgo !== 1 ? 's': ''}`;
+    formattedDate = `hace ${daysAgo} día${daysAgo !== 1 ? 's' : ''}`;
   } else {
     formattedDate = 'Today';
   }
@@ -101,4 +101,17 @@ export function formatDate(date: string, includeRelative = false) {
   }
 
   return `${fullDate} (${formattedDate})`;
+};
+
+export function search(query: string) {
+  const lowerCaseQuery = query.toLowerCase();
+  if (!query || typeof query !== "string") return [];
+
+  return getMDXData(path.join(process.cwd(), 'app', 'blog', 'posts')).filter((post) => {
+    const { content, metadata: { title, summary } = {} } = post;
+
+    const fields = [content, title, summary].map((field) => field?.toLowerCase() || "");
+    
+    return fields.some(field => field.includes(lowerCaseQuery));
+  });
 };

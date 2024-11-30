@@ -138,11 +138,34 @@ input[type='email'] {
   appearance: none;
 }
 
-table {
+table.mdx-table {
   display: block;
   max-width: fit-content;
   overflow-x: auto;
   white-space: nowrap;
+}
+
+table.mdx-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+}
+
+th.mdx-th, td.mdx-td {
+  text-align: left;
+  word-wrap: break-word; /* Ajusta las palabras */
+  word-break: break-word; /* Para palabras largas */
+  white-space: normal; /* Permite saltos de línea */
+}
+
+th, td {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+th.mdx-th {
+  background-color: #bbb3b3;
+  color: black;
 }
 
 .title {

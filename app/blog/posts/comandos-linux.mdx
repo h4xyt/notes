@@ -1,0 +1,290 @@
+---
+title: 'Comandos de Linux'
+publishedAt: '2024-11-26'
+group: 'misc'
+---
+
+# Comandos de Linux
+
+## Ayuda sobre comandos
+
+<table style={{ width: '100%', borderCollapse: 'collapse' }}>
+  <thead>
+    <tr>
+      <th style={{ wordBreak: 'break-word', whiteSpace: 'normal' }}>Comando</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>man comando</td>
+    </tr>
+    <tr>
+      <td>info comando</td>
+    </tr>
+    <tr>
+      <td>comando --help</td>
+    </tr>
+    <tr>
+      <td>help comando</td>
+    </tr>
+  </tbody>
+</table>
+
+## Comandos básicos
+
+<table style={{ width: '100%', borderCollapse: 'collapse' }}>
+    <thead>
+        <tr>
+            <th style={{ wordBreak: 'break-word', whiteSpace: 'normal' }}>Comando</th>
+            <th style={{ wordBreak: 'break-word', whiteSpace: 'normal' }}>Acción</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>cal</td>
+            <td>Muestra el calendario del mes actual</td>
+        </tr>
+        <tr>
+            <td>cal -y</td>
+            <td>Muestra el calendario del año actual</td>
+        </tr>
+        <tr>
+            <td>cat fichero</td>
+            <td>Muestra contenido del fichero</td>
+        </tr>
+        <tr>
+            <td>cat fich1 fich2...</td>
+            <td>Muestra los ficheros concatenados</td>
+        </tr>
+        <tr>
+            <td>cat -n fichero</td>
+            <td>Numera las líneas</td>
+        </tr>
+        <tr>
+            <td>cat -b fichero</td>
+            <td>Numera las líneas que no están en blanco</td>
+        </tr>
+        <tr>
+            <td>cat -s fichero</td>
+            <td>Si encuentra líneas en blanco, las agrupa en una sola</td>
+        </tr>
+        <tr>
+            <td>cd directorio</td>
+            <td>Navega al directorio</td>
+        </tr>
+        <tr>
+            <td>clear (o ctrl+l)</td>
+            <td>Limpia la consola</td>
+        </tr>
+        <tr>
+            <td>cp fichero directorio_destino</td>
+            <td>Copia el fichero al directorio de destino</td>
+        </tr>
+        <tr>
+            <td>cp -r directorio directorio_destino</td>
+            <td>Copia el directorio (con todo lo que hay dentro)</td>
+        </tr>
+        <tr>
+            <td>cp -i fichero directorio_destino</td>
+            <td>Pide confirmación si el fichero ya existe en el directorio de destino</td>
+        </tr>
+        <tr>
+            <td>cp -b fichero directorio_destino</td>
+            <td>Crea copia de seguridad si el fichero ya existe en el directorio de destino</td>
+        </tr>
+        <tr>
+            <td>date</td>
+            <td>Muestra la fecha del sistema</td>
+        </tr>
+        <tr>
+            <td>date MMDDhhmm[AAAA][.ss]</td>
+            <td>Cambia la fecha del sistema</td>
+        </tr>
+        <tr>
+            <td>date +"formato"</td>
+            <td>Muestra la fecha formateada (date +"Hoy es %d del %m de %Y")</td>
+        </tr>
+        <tr>
+            <td>date -d 'AAAA-MM-DD hh:mm'</td>
+            <td>Muestra fecha distinta de la actual (también vale '1 day ago', 'yesterday', 'next week'...)</td>
+        </tr>
+        <tr>
+            <td>du fichero</td>
+            <td>Muestra el tamaño de un archivo en KB</td>
+        </tr>
+        <tr>
+            <td>du -h fichero</td>
+            <td>Muestra el tamaño de un archivo en una unidad más amigable (MB, GB, … dependiendo del tamaño)</td>
+        </tr>
+        <tr>
+            <td>du --time fichero</td>
+            <td>Muestra tamaño de un archivo y su última fecha de modificación</td>
+        </tr>
+        <tr>
+            <td>du directorio</td>
+            <td>Muestra tamaño de cada archivo que contiene el directorio</td>
+        </tr>
+        <tr>
+            <td>du -d N directorio</td>
+            <td>Muestra tamaño de cada archivo que contiene el directorio descendiendo N subdirectorios</td>
+        </tr>
+        <tr>
+            <td>echo expresion</td>
+            <td>Muestra la expresión por pantalla</td>
+        </tr>
+        <tr>
+            <td>find . -name &#39;&#42;.tgz&#39; -size +20M -mtime +7 -exec rm -f &#123;&#125;</td>
+            <td>Busca en el directorio actual (.) los archivos cuyo nombre acabe en .tgz (-name &#39;&#42;.tgz&#39;), su tamaño sea mayor a 20MB (-size +20MB), que fue modificado hace más de 7 días (-mtime +7) y los borra (-exec rm -f &#123;&#125;)</td>
+        </tr>
+        <tr>
+            <td>ln fichero enlace</td>
+            <td>Crea un enlace duro (es como duplicar el archivo sin ocupar espacio adicional) al archivo o directorio</td>
+        </tr>
+        <tr>
+            <td>ln fich1 fich2... directorio_dest</td>
+            <td>Crea enlaces a los archivos dentro del directorio destino y con los mismos nombres que los archivos</td>
+        </tr>
+        <tr>
+            <td>ln -s ficherto enlace</td>
+            <td>Crea un enlace blando (como un acceso directo, si se borra el original, se borra también el enlace)</td>
+        </tr>
+        <tr>
+            <td>sudo ln -d directorio enlace</td>
+            <td>Solo el usuario root puede hacer enlaces duros de directorios</td>
+        </tr>
+        <tr>
+            <td>ls</td>
+            <td>Lista el contenido de la carpeta actual</td>
+        </tr>
+        <tr>
+            <td>ls -a</td>
+            <td>Lista el contenido de la carpeta actual (incluidos archivos y directorios ocultos)</td>
+        </tr>
+        <tr>
+            <td>ls -l</td>
+            <td>Lista el contenido de la carpeta actual junto con sus permisos</td>
+        </tr>
+        <tr>
+            <td>mkdir directorio</td>
+            <td>Crea un directorio</td>
+        </tr>
+        <tr>
+            <td>mkdir dir1/dir2</td>
+            <td>Crea el dir1 (si no existía) y el dir2 dentro de este</td>
+        </tr>
+        <tr>
+            <td>mv fichero directorio</td>
+            <td>Mueve un archivo (también sirve para renombrar)</td>
+        </tr>
+        <tr>
+            <td>passwd</td>
+            <td>Cambia la contraseña del usuario actual</td>
+        </tr>
+        <tr>
+            <td>passwd usuario</td>
+            <td>Cambia la contraseña del usuario</td>
+        </tr>
+        <tr>
+            <td>pwd</td>
+            <td>Muestra la ruta completa del directorio actual</td>
+        </tr>
+        <tr>
+            <td>rm fichero</td>
+            <td>Borra el archivo</td>
+        </tr>
+        <tr>
+            <td>rm -r directorio</td>
+            <td>Borra el directorio con todo lo que hay dentro</td>
+        </tr>
+        <tr>
+            <td>rm -f fichero</td>
+            <td>Borra sin pedir confirmación</td>
+        </tr>
+        <tr>
+            <td>rm -i fichero</td>
+            <td>Pide confirmación cada vez que va a borrar un archivo</td>
+        </tr>
+        <tr>
+            <td>stat fichero</td>
+            <td>Muestra la información relativa a un archivo</td>
+        </tr>
+        <tr>
+            <td>su</td>
+            <td>Inicia sesión como root</td>
+        </tr>
+        <tr>
+            <td>su usuario</td>
+            <td>Inicia sesión como usuario</td>
+        </tr>
+        <tr>
+            <td>su -l usuario</td>
+            <td>Actualiza la sesión como si hicieramos login de cero</td>
+        </tr>
+        <tr>
+            <td>time comando</td>
+            <td>Muestra el tiempo que tarda un comando en ejecutarse</td>
+        </tr>
+        <tr>
+            <td>touch fichero</td>
+            <td>Crea un fichero vacío</td>
+        </tr>
+        <tr>
+            <td>tree</td>
+            <td>Muestra el árbol de directorios desde el directorio actual</td>
+        </tr>
+        <tr>
+            <td>tty</td>
+            <td>Nos informa del terminal actual</td>
+        </tr>
+        <tr>
+            <td>uname</td>
+            <td>Muestra el nombre del sistema operativo</td>
+        </tr>
+        <tr>
+            <td>who</td>
+            <td>Muestra sesiones de usuario iniciadas actualmente</td>
+        </tr>
+        <tr>
+            <td>whoami</td>
+            <td>Muestra la sesión desde la que ejecutamos el comando</td>
+        </tr>
+    </tbody>
+</table>
+
+## Permisos de archivos
+
+| Tipo | Usuario/Propietario   | Grupo Propietario     | Otros                 |
+|------|-----------------------|-----------------------|-----------------------|
+| -    | r     | w     | x     | r     | w     | x     | r     | w     | x     |
+
+<table style={{ width: '100%', borderCollapse: 'collapse' }}>
+    <thead>
+        <tr>
+            <th>Tipo</th>
+            <th>Usuario/Propietario</th>
+            <th>Grupo Propietario</th>
+            <th>Otros</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td colspan="1">Dato 1</td>
+            <td colspan="3"></td>
+        </tr>
+        <tr>
+            <td colspan="1"></td>
+            <td colspan="1">Dato 2</td>
+            <td colspan="1">Dato 3</td>
+            <td colspan="1"></td>
+        </tr>
+        <tr>
+            <td colspan="2"></td>
+            <td colspan="1">Dato 4</td>
+            <td colspan="1"></td>
+        </tr>
+        <tr>
+            <td colspan="3"></td>
+            <td colspan="1">Dato 5</td>
+        </tr>
+    </tbody>
+</table>
