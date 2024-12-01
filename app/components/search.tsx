@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { SearchBar } from './search-bar';
-import { Metadata, search } from 'app/blog/utils';
+import { Metadata } from 'app/blog/utils';
 import { SearchPosts } from './search-posts';
 
 export function Search() {

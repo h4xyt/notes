@@ -103,6 +103,54 @@ export function formatDate(date: string, includeRelative = false) {
   return `${fullDate} (${formattedDate})`;
 };
 
+function mapSearchContent(search: string, text: string): { lineNumber: number; content: string; }[] {
+  const lines = text.split("\n");
+  const results: { lineNumber: number; content: string; }[] = [];
+  const matches: number[] = [];
+
+  lines.forEach((line, index) => {
+    if (line.match(new RegExp(search, 'i'))) {
+      matches.push(index);
+    }
+  });
+
+  if (matches.length === 0) {
+    for (let i = 0; i < Math.min(7, lines.length); i++) {
+      results.push({ lineNumber: i + 1, content: lines[i] });
+    }
+  } else if (matches.length === 1) {
+    const matchIndex = matches[0];
+    const start = Math.max(0, matchIndex - 1);
+    const end = Math.min(lines.length, matchIndex + 6);
+
+    for (let i = start; i < end; i++) {
+      results.push({
+        lineNumber: i + 1,
+        content: i === matchIndex ? lines[i].replace(new RegExp('(?:' + search + ')', 'i'), `<mark>$&</mark>`) : lines[i],
+      });
+    }
+  } else {
+    const firstMatch = matches[0];
+    const secondMatch = matches[1];
+    const start = Math.max(0, firstMatch - 1);
+    const afterFirstMatch = Math.min(lines.length, firstMatch + 5);
+
+    for (let i = start; i < afterFirstMatch; i++) {
+      results.push({
+        lineNumber: i + 1,
+        content: i === firstMatch ? lines[i].replace(search, `<mark>${search}</mark>`) : lines[i],
+      });
+    }
+
+    results.push({
+      lineNumber: secondMatch + 1,
+      content: lines[secondMatch].replace(search, `<mark>${search}</mark>`),
+    });
+  }
+
+  return results;
+}
+
 export function search(query: string) {
   const lowerCaseQuery = query.toLowerCase();
   if (!query || typeof query !== "string") return [];
@@ -111,7 +159,11 @@ export function search(query: string) {
     const { content, metadata: { title, summary } = {} } = post;
 
     const fields = [content, title, summary].map((field) => field?.toLowerCase() || "");
-    
+
     return fields.some(field => field.includes(lowerCaseQuery));
-  });
+  })
+    .map((post) => ({
+      ...post,
+      content: mapSearchContent(query, post.content)
+    }));
 };

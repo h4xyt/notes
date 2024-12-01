@@ -3,7 +3,7 @@ import { search } from 'app/blog/utils';
 
 export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
-    const searchValue = searchParams.get('query'); // Asegúrate de usar "query" como en el fetch
+    const searchValue = searchParams.get('query');
 
     if (!searchValue) {
         return NextResponse.json({ error: 'Missing query parameter' }, { status: 400 });
